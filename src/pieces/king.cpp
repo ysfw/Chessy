@@ -21,7 +21,7 @@ bool king::isCheck(board &Board, pos targetSquare)
     Board.setAt(oldPosition, nullptr);
     this->updatePos(targetSquare);
 
-    bool isKingAttacked = !Board.AttackedBy(targetSquare, this->isWhite()).empty();
+    bool isKingAttacked = Board.AttackedBy(targetSquare, this->isWhite());
 
     Board.setAt(oldPosition, this);
     Board.setAt(targetSquare, capturedPiece);
@@ -72,7 +72,7 @@ bool king::canKingsideCastle(board &Board)
 
         for (size_t i = 1; i < 3; i++)
         {
-            if (Board.getAt({firstCoord, secondCoord + i}) != nullptr || !Board.AttackedBy({firstCoord, secondCoord + i}, this->isWhite()).empty())
+            if (Board.getAt({firstCoord, secondCoord + i}) != nullptr || Board.AttackedBy({firstCoord, secondCoord + i}, this->isWhite()))
                 return false;
         }
         rook *r = dynamic_cast<rook *>(Board.getAt({firstCoord, secondCoord + 3}));
@@ -92,7 +92,7 @@ bool king::canQueensideCastle(board &Board)
 
         for (size_t i = 1; i < 4; i++)
         {
-            if (Board.getAt({firstCoord, secondCoord - i}) != nullptr || !Board.AttackedBy({firstCoord, secondCoord - i}, this->isWhite()).empty())
+            if (Board.getAt({firstCoord, secondCoord - i}) != nullptr || Board.AttackedBy({firstCoord, secondCoord - i}, this->isWhite()))
                 return false;
         }
         rook *r = dynamic_cast<rook *>(Board.getAt({firstCoord, secondCoord - 4}));
@@ -107,7 +107,7 @@ void king::resetCastling()
     canCastle = false;
 }
 
-void king::checkMoves(board &Board, pos position)
+void king::checkMoves(board &Board, pos /*position*/)
 {
     clearMoves();
     // Checking for a possible castle

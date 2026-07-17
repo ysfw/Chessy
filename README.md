@@ -37,10 +37,10 @@ Compile the source code:
 Use the following command to compile all necessary files into a single executable named `chessy`:
 
 ```bash
-g++ -I. -o chessy main.cpp game.cpp pieces/*.cpp
+make
 ```
 
-> Note: The `-I.` flag tells the compiler to look for included header files in the current directory.
+> Note: A `Makefile` is provided to simplify the build process. It automatically compiles all `.cpp` files in the main directory and the `pieces` folder.
 
 ### Windows UTF-8 Note
 On Windows, you may need to set the console to UTF-8 to properly display Unicode characters (The chess pieces).  

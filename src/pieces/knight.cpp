@@ -8,7 +8,7 @@ Knight::Knight(bool isWhite, pos startingPosition)
     setType('n');
 }
 
-void Knight ::checkMoves(board &Board, pos currPosition)
+void Knight ::checkMoves(board &Board, pos /*currPosition*/)
 {
     clearMoves();
     pair<int,int> directions [8]  = {{2,1},{2,-1},{-2,1},{-2,-1},{1,2},{-1,2},{1,-2},{-1,-2}};

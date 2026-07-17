@@ -1,31 +1,16 @@
 #pragma once
-#include <bits/stdc++.h>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <cstdint>
 #include "pieces/piece.h"
-#include <ncursesw/ncurses.h>
-#include <limits>
+#include "helpers.h"
+
 using namespace std;
-
-
-//Helper Functions
-string moveTOstring(pos Position);
-pos stringTOmove(string move);
-char getPromotionPiece();
-void clearScreen();
-vector<string> splitFEN (string FEN);
-string buildFEN (board &board);
 
 const int NO_FILE = -1; 
 
-struct AttackInfo {
-    //<<<<<<< This turned out to be totally useless I'll need to remove it later....
-    //but I've decided that I'll keep it for now just in case I need it in the future and because
-    //I realized that it would require a lot of changes to remove it now
-    //====================================================================================
 
-    piece* attacker; // A pointer to the piece delivering the attack
-    set<pos> path; // The squares between the attacker and a given square.
-    // This will be EMPTY for direct attackers like knights and pawns.
-};
 
 class board
 {
@@ -41,8 +26,6 @@ private:
         "pppppppp",
         "rnbqkbnr"
     }; //White Pieces in Capital letters
-    
-
     
     /*Using Zobrist table & keys for threefold repetition draw logic
     - this is way more efficient than saving the whole board 
@@ -96,7 +79,7 @@ public:
     
     void setAt(pos position,piece* Pointer2piece);
     piece* getAt(pos position);
-    vector<AttackInfo> AttackedBy(pos Position,bool isDefenderWhite); //returns a vector containing the path of attack of pieces (bishop, rook and queen) attacking a given square and a pointer to the attacking piece
+    bool AttackedBy(pos Position,bool isDefenderWhite); //returns true if the square is attacked
     bool isPinned(piece* piece, pos newPosition);
     void setKingPosition(bool isWhite, pos newPosition);
     pos getKingPosition(bool isWhite);
@@ -109,9 +92,7 @@ public:
     void addHash (uint64_t newHash);
     void setPreviousHash(uint64_t newHash);
 
-    //debug
-    int repeted(uint64_t key);
-    //endofdebug
+    int repeted(uint64_t key); // for debugging purposes 
 
     bool isEnpassant ();
     void setEnpassant();
@@ -119,6 +100,7 @@ public:
     int getEnPassantFile();
     void setEnPassantFile(int file);
     void resetEnPassantFile();
+    void resetEnpassantFile();
     void setEnpassantstr(string pos);
     string getEnpassantstr();
 
@@ -129,19 +111,8 @@ public:
     bool is50MoveDraw();
     bool is75MoveDraw();
 
-    
-
     void printBoardW();
     void printBoardB();
 };
 
-
-class game
-{
-public:
-    game();
-    void run (board &board); 
-    ~game();
-    void saveGame(board &board);
-    void loadGame();
-};
+string buildFEN(board &board);

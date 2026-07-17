@@ -1,5 +1,7 @@
 #pragma once
-#include <bits/stdc++.h>
+#include <utility>
+#include <string>
+#include <set>
 using namespace std;
 class player;
 class board;

@@ -1,4 +1,7 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <map>
+#include <cmath>
+#include <cstdint>
 #include "piece.h"
 #include "game.h"
 using namespace std;
@@ -63,7 +66,7 @@ void piece::clearMoves()
     possibleCaptures.clear();
 }
 
-void piece ::checkMoves(board &Board, pos currPosition) {}
+void piece ::checkMoves(board &/*Board*/, pos /*currPosition*/) {}
 
 bool piece::Move(board &Board, pos newPosition)
 {
