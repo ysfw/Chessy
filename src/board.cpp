@@ -5,34 +5,29 @@
 #include <random>
 #include <map>
 
-piece *board::createPieceFromChar(char pieceChar, pos position)
+// Creates the piece via PieceFactory and updates the board's own bookkeeping
+// (piece counters and king position cache). This keeps side-effect logic out of the factory.
+piece *board::createAndRegisterPiece(char pieceChar, pos position)
 {
-    bool isWhite = (isupper(pieceChar) != 0);
+    piece *p = PieceFactory::create(pieceChar, position);
+    if (p == nullptr)
+        return nullptr;
 
+    bool isWhite = p->isWhite();
     switch (tolower(pieceChar))
     {
-    case 'r':
-        isWhite ? whiteRooks++ : blackRooks++;
-        return new rook(isWhite, position);
-    case 'n':
-        isWhite ? whiteKnights++ : blackKnights++;
-        return new Knight(isWhite, position);
-    case 'b':
-        isWhite ? whiteBishops++ : blackBishops++;
-        return new bishop(isWhite, position);
-    case 'q':
-        isWhite ? whiteQueens++ : blackQueens++;
-        return new queen(isWhite, position);
-    case 'k':
-        isWhite ? whiteKingPosition = position : blackKingPosition = position;
-        return new king(isWhite, position);
-    case 'p':
-        isWhite ? whitePawns++ : blackPawns++;
-        return new pawn(isWhite, position);
-    default:
-        return nullptr;
+    case 'r': isWhite ? whiteRooks++    : blackRooks++;    break;
+    case 'n': isWhite ? whiteKnights++  : blackKnights++;  break;
+    case 'b': isWhite ? whiteBishops++  : blackBishops++;  break;
+    case 'q': isWhite ? whiteQueens++   : blackQueens++;   break;
+    case 'k': isWhite ? whiteKingPosition = position
+                      : blackKingPosition = position;       break;
+    case 'p': isWhite ? whitePawns++    : blackPawns++;    break;
+    default: break;
     }
+    return p;
 }
+
 
 bool board::isWhiteTurn()
 {
@@ -228,7 +223,7 @@ board::board(bool fullBoard)
                 char pieceChar = layout[rank][file];
                 if (pieceChar != '.')
                 {
-                    Board[rank][file] = createPieceFromChar(pieceChar, {rank, file});
+                    Board[rank][file] = createAndRegisterPiece(pieceChar, {rank, file});
                 }
             }
         }
@@ -303,7 +298,7 @@ board *board::boardFromFEN(string FEN)
                 return nullptr;
             }
 
-            Board->setAt({rank, file}, Board->createPieceFromChar(a, {rank, file}));
+            Board->setAt({rank, file}, Board->createAndRegisterPiece(a, {rank, file}));
             file++;
         }
     }

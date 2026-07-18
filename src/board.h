@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include "pieces/piece.h"
+#include "pieces/piece_factory.h"
 #include "helpers.h"
 
 using namespace std;
@@ -50,7 +51,9 @@ private:
     bool didWhiteCapture =false; 
     int enPassantFile;
     string enpassantPositionstr;
-    piece* createPieceFromChar(char pieceChar, pos position);
+    // Piece creation is delegated to PieceFactory.
+    // Board only updates its own counters and king position tracking after creation.
+    piece* createAndRegisterPiece(char pieceChar, pos position);
     int whiteQueens, whiteRooks, whiteBishops, whiteKnights , whitePawns ;
     int blackQueens, blackRooks, blackBishops, blackKnights , blackPawns ;
 public:
