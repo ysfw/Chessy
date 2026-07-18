@@ -7,6 +7,6 @@ using namespace std;
 
 string moveTOstring(pos Position);
 pos stringTOmove(string move);
-char getPromotionPiece();
+char getPromotionPiece(bool isWhite);
 void clearScreen();
 vector<string> splitFEN(string FEN);

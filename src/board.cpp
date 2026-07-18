@@ -11,8 +11,8 @@ piece *board::createAndRegisterPiece(char pieceChar, pos position)
 {
     piece *p = PieceFactory::create(pieceChar, position);
     if (p == nullptr)
-        return nullptr;
-
+    return nullptr;
+    
     bool isWhite = p->isWhite();
     switch (tolower(pieceChar))
     {
@@ -558,9 +558,9 @@ piece *board ::getAt(pos position)
     return Board[position.first][position.second];
 }
 
-void board ::setAt(pos position, piece *Pointer2piece)
+void board ::setAt(pos position, piece *PointertoPiece)
 {
-    Board[position.first][position.second] = Pointer2piece;
+    Board[position.first][position.second] = PointertoPiece;
 }
 
 bool board ::isEnpassant()

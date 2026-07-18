@@ -108,8 +108,9 @@ bool piece::Move(board &Board, pos newPosition)
         {
     
             piece *promotedPiece = nullptr;
-            char promotionPieceType = getPromotionPiece();
-            Board.plusPiece(promotionPieceType,this->White);
+            char promotionPieceType = getPromotionPiece(this->White);
+            char promotionPieceLower = tolower(promotionPieceType);
+            Board.plusPiece(promotionPieceLower,this->White);
             Board.minusPiece('p',this->White);
             if (targetOnNextSquare != nullptr)
             {
@@ -126,44 +127,24 @@ bool piece::Move(board &Board, pos newPosition)
                 if(movingPieceColor) Board.resetWhitecaptured();
                 Board.plusHalfMoveNoCaptures();
             }
-            switch (promotionPieceType)
-            {
-                case 'q':
-                {
-                    promotedPiece = new queen(this->White, newPosition);
-                    Board.setAt(newPosition,promotedPiece);
-                    break;
-                }
-    
-                case 'r':
-                {
-                    promotedPiece = new rook(this->White, newPosition);
-                    Board.setAt(newPosition,promotedPiece);
-                    break;
-                }
-                case 'b':
-                {
-                    promotedPiece = new bishop(this->White, newPosition);
-                    Board.setAt(newPosition,promotedPiece);
-                    break;
-                }
-                case 'n':
-                {
-                    promotedPiece = new Knight(this->White, newPosition);
-                    Board.setAt(newPosition,promotedPiece);
-                    break;
-                }
-                default:
-                break;
-            }
-            newHash ^= Board.getPiecehash(promotionPieceType, movingPieceColor, newPosition);
+            promotedPiece = PieceFactory::create(promotionPieceType, position);
+            promotedPiece->updatePos(newPosition);
             Board.setAt(newPosition, promotedPiece);
-            delete Board.getAt(position);
+            newHash ^= Board.getPiecehash(promotionPieceLower, movingPieceColor, newPosition);
+
             Board.setAt(position, nullptr);
-    
+
             Board.resetEnpassant();
             Board.resetEnPassantFile();
             Board.setEnpassantstr("");
+
+            Board.addHash(newHash);
+            Board.setPreviousHash(newHash);
+            if(!Board.isWhiteTurn())
+                Board.plusFullMove();
+
+            delete this; // deletes the pawn itself after it's safe to do so
+            return true;
         }
     // --- BRANCH 2: Capture ---
     else if (isCapture && !isEnPassantCapture)

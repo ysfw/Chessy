@@ -47,10 +47,10 @@ vector<string> splitFEN(string FEN)
     return res;
 }
 
-char getPromotionPiece()
+char getPromotionPiece(bool isWhite)
 {
     string piece;
     cout << "Choose What piece to promote to (N,Q,B,R): ";
     getline(cin, piece);
-    return tolower(piece[0]);
+    return (isWhite)? toupper(piece[0]): tolower(piece[0]);
 }
