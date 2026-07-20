@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <cstdint>
+#include <map>
 #include "pieces/piece.h"
 #include "pieces/piece_factory.h"
 #include "helpers.h"
@@ -11,6 +12,23 @@ using namespace std;
 
 const int NO_FILE = -1; 
 
+enum PieceType
+{
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING
+};
+inline const map<char, int> pieceType = {
+    {'p', PAWN}, 
+    {'n', KNIGHT}, 
+    {'b', BISHOP}, 
+    {'r', ROOK}, 
+    {'q', QUEEN}, 
+    {'k', KING}
+};
 
 
 class board
@@ -42,33 +60,38 @@ private:
     void initZobrist();
     unordered_map<uint64_t,int> zobristHistory; // {hash, #occurences}
     uint64_t PreviousHash;
+    
     pos whiteKingPosition;
     pos blackKingPosition;
+    
     bool whiteTurn;
     int fullmoves;
     int halfmovesNoCaptures;
-    bool enpassant = false;
+    
     bool didWhiteCapture =false; 
+    bool enpassant = false;
     int enPassantFile;
     string enpassantPositionstr;
     // Piece creation is delegated to PieceFactory.
     // Board only updates its own counters and king position tracking after creation.
     piece* createAndRegisterPiece(char pieceChar, pos position);
+    
     int whiteQueens, whiteRooks, whiteBishops, whiteKnights , whitePawns ;
     int blackQueens, blackRooks, blackBishops, blackKnights , blackPawns ;
-public:
+
+    public:
     board(bool fullBoard);
     // true for normal game -> initialized full board
     static board* boardFromFEN(string FEN);
-
+    
     ~board();
-
+    
     bool isWhiteTurn();
     void switchTurns();
     void setWhitecaptured();
     void resetWhitecaptured();
     bool DidWhitecapture();
-
+    
     void minusPiece(char pieceType,bool isWhite);
     void plusPiece(char pieceType,bool isWhite);
     
@@ -86,6 +109,7 @@ public:
     bool isPinned(piece* piece, pos newPosition);
     void setKingPosition(bool isWhite, pos newPosition);
     pos getKingPosition(bool isWhite);
+    king* getKing(bool isWhite);
     
     uint64_t getPiecehash(char piece,bool isWhite,pos position);
     uint64_t getPreviousHash();
@@ -103,7 +127,6 @@ public:
     int getEnPassantFile();
     void setEnPassantFile(int file);
     void resetEnPassantFile();
-    void resetEnpassantFile();
     void setEnpassantstr(string pos);
     string getEnpassantstr();
 

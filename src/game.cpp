@@ -225,6 +225,7 @@ void game::loadGame()
         cout << i + 1 << ". " << saveName << " (Saved on: " << dateTime << ")" << endl;
     }
     string FEN;
+    board* loadedBoard;
     while (true)
     {
         
@@ -265,8 +266,8 @@ void game::loadGame()
         getline(ss, dateTime, ',');
         getline(ss, saveName, ',');
         getline(ss, FEN, ',');
-    
-        if (board::boardFromFEN(FEN) == nullptr)
+        loadedBoard = board::boardFromFEN(FEN);
+        if (loadedBoard== nullptr)
         {
             cerr << "Failed to load the selected game." << endl;
             this_thread::sleep_for(chrono::seconds(2));
@@ -278,7 +279,7 @@ void game::loadGame()
         }
 
     }
-    this->run(*board::boardFromFEN(FEN));
+    this->run(*loadedBoard);
     
 
 

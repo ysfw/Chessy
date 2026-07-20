@@ -22,32 +22,40 @@ public:
     piece();
     piece(bool isWhite, pos startingPosition);
     virtual ~piece();
+
     bool isWhite();
-    void updatePos(pos newPosition);
-    pos getPosition();
     char getType();
-    void setType(char newType);
-    string getprintableValue();
-    void setprintableValue(string);
-    void addPossibleMove(pos move);
-    void addPossibleCapture(pos move);
+    pos getPosition();
     set<pos> getPossibleMoves ();
     set<pos> getPossibleCaptures ();
-    bool Move(board &Board,pos newPosition);
+    string getprintableValue();
+
+    void updatePos(pos newPosition);
+    void addPossibleCapture(pos move);
+    void setType(char newType);
+    void addPossibleMove(pos move);
+    void setprintableValue(string);
+
+    virtual bool canCastle() { return false; }
+
+
+    virtual bool Move(board &Board,pos newPosition);
     virtual void checkMoves(board &Board, pos currPosition);
     void clearMoves();
-
 };
 
 
 class rook : public piece {
 private:
-    bool canCastle;
+    bool hasCastlingRights;
 public:
    rook(bool White, pos startingPosition);
-   bool canRookCastle();
+   
+   bool canCastle()override;
    void resetCastling();
+   
    void checkMoves(board &Board, pos currPos)override;
+   bool Move(board &Board,pos newPosition)override;
 };
 
 
@@ -55,6 +63,7 @@ class bishop : public piece
 {
 public:
     bishop(bool isWhite, pos startingPosition);
+    
     void checkMoves(board &Board, pos currPosition)override;
 };
 
@@ -66,49 +75,58 @@ private:
 public:
     king(bool White, pair<int, int> startingPosition);
     void checkMoves(board &Board, pos position)override;
+    bool Move(board &Board,pos newPosition) override;
+
     bool canKingCastle();
+    
     bool canKingsideCastle (board &Board);
     bool canQueensideCastle (board &Board);
-    void setKingsideCastle ();
-    void setQueensideCastle();
+    
     bool getKingsideCastle ();
     bool getQueensideCastle();
+    
+    void setKingsideCastle ();
+    void setQueensideCastle();
     void resetKingsideCastle ();
     void resetQueensideCastle();
     void resetCastling();
+    
     bool isCheck(board &Board,pos targetSquare);
 };
 
-class Knight : public piece
+class knight : public piece
 {
     public:
-    Knight(bool White, pos startingPosition);
+    knight(bool White, pos startingPosition);
+    
     void checkMoves(board &Board, pos currPosition)override;
+
 };
 
 
 class pawn : public piece
 {
     private:
-    
     bool enpassant = false;
     
     public:
-    bool ISenpassant();
+    bool isEnpassant();
     void setenpassant();
     void resetenpassant();
+
     pawn(bool isWhite,pos startingPosition);
+    
     void checkMoves(board &Board,pos currPosition)override;
+    bool Move(board &Board,pos newPosition) override;
+
 };
 
 
 
 class queen : public piece
 {
-public:
-queen(bool White, pos startingPosition);
-void checkMoves(board &Board, pos currPosition)override;
+    public:
+    queen(bool White, pos startingPosition);
+
+    void checkMoves(board &Board, pos currPosition)override;
 };
-
-
-

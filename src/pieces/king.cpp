@@ -1,5 +1,11 @@
 #include "piece.h"
 #include "game.h"
+
+#include <algorithm>
+#include <map>
+#include <cmath>
+#include <cstdint>
+
 king::king(bool isWhite, pair<int, int> startingPosition)
     : piece(isWhite, startingPosition)
 {
@@ -75,8 +81,8 @@ bool king::canKingsideCastle(board &Board)
             if (Board.getAt({firstCoord, secondCoord + i}) != nullptr || Board.AttackedBy({firstCoord, secondCoord + i}, this->isWhite()))
                 return false;
         }
-        rook *r = dynamic_cast<rook *>(Board.getAt({firstCoord, secondCoord + 3}));
-        if (r != nullptr && r->canRookCastle())
+        piece *r = Board.getAt({firstCoord, secondCoord + 3});
+        if (r != nullptr && r->canCastle())
             return true;
     }
     return false;
@@ -95,8 +101,8 @@ bool king::canQueensideCastle(board &Board)
             if (Board.getAt({firstCoord, secondCoord - i}) != nullptr || Board.AttackedBy({firstCoord, secondCoord - i}, this->isWhite()))
                 return false;
         }
-        rook *r = dynamic_cast<rook *>(Board.getAt({firstCoord, secondCoord - 4}));
-        if (r != nullptr && r->canRookCastle())
+        piece *r = Board.getAt({firstCoord, secondCoord - 4});
+        if (r != nullptr && r->canCastle())
             return true;
     }
     return false;
@@ -146,4 +152,125 @@ void king::checkMoves(board &Board, pos /*position*/)
             }
         }
     }
+}
+
+
+bool king::Move(board &Board, pos newPosition)
+{
+    set<pos> possibleMoves = getPossibleMoves();
+    if (!binary_search(possibleMoves.begin(), possibleMoves.end(), newPosition))
+    {
+        return false; // Not a valid move at all
+    }
+    pos oldPosition = getPosition();
+    piece *targetOnNextSquare = Board.getAt(newPosition);
+    int movingPieceColor = this->isWhite() ? 1 : 0;
+    char movingPieceType = 'k';
+    bool isCapture = (targetOnNextSquare != nullptr);
+    bool isCastle = abs((int)(oldPosition.second - newPosition.second)) == 2;
+
+
+    uint64_t newHash = Board.getPreviousHash();
+
+        newHash ^= Board.getWhiteTurnkey();
+        if (Board.getEnPassantFile() != NO_FILE)
+        {
+            newHash ^= Board.getenPassantFileKey(Board.getEnPassantFile());
+        }
+        newHash ^= Board.getPiecehash(movingPieceType, movingPieceColor, oldPosition);
+        
+    // --- BRANCH 1: Capture ---
+    if (isCapture)
+    {
+        char capturedPieceType = targetOnNextSquare->getType();
+        int capturedPieceColor = targetOnNextSquare->isWhite() ? 1 : 0;
+        
+        Board.resetHalfMovesNoCaptures();
+        if(movingPieceColor) Board.setWhitecaptured();
+        Board.minusPiece(capturedPieceType,capturedPieceColor);
+
+        if (targetOnNextSquare->canCastle())
+        {
+            if ((newPosition.first == 0 || newPosition.first == 7) && newPosition.second == 7)
+                newHash ^= Board.getcastlingKey(1, targetOnNextSquare->isWhite());
+            if ((newPosition.first == 0 || newPosition.first == 7) && newPosition.second == 0)
+                newHash ^= Board.getcastlingKey(2, targetOnNextSquare->isWhite());
+        }
+        newHash ^= Board.getPiecehash(movingPieceType, movingPieceColor, newPosition);
+        newHash ^= Board.getPiecehash(capturedPieceType, capturedPieceColor, newPosition);
+        
+        delete Board.getAt(newPosition);
+        
+        Board.setAt(newPosition, this);
+        Board.setAt(oldPosition, nullptr);
+        this->updatePos(newPosition);
+
+    }
+
+    // --- BRANCH 2: Castling Move ---
+    else if (isCastle)
+    {
+        if(movingPieceColor) Board.resetWhitecaptured();
+
+        Board.plusHalfMoveNoCaptures();
+
+        newHash ^= Board.getPiecehash(movingPieceType, movingPieceColor, newPosition);
+        
+        bool kingSide = (newPosition.second > oldPosition.second);
+        Board.setAt(newPosition, this);
+        
+        pos oldRookPos = {oldPosition.first, kingSide ? 7 : 0};
+        pos newRookPos = {oldPosition.first, kingSide ? newPosition.second - 1 : newPosition.second + 1};
+        piece *rook = Board.getAt(oldRookPos);
+
+        newHash ^= Board.getPiecehash('r', movingPieceColor, oldRookPos);
+        newHash ^= Board.getPiecehash('r', movingPieceColor, newRookPos);
+        
+        Board.setAt(newRookPos, rook);
+        Board.setAt(oldRookPos, nullptr);
+        Board.setAt(oldPosition, nullptr);
+        
+        this->updatePos(newPosition);
+        rook->updatePos(newRookPos);
+    }
+
+    // --- BRANCH 3: Non-Capture Move ---
+    else
+    {
+        if(movingPieceColor) Board.resetWhitecaptured();
+
+        newHash ^= Board.getPiecehash(movingPieceType, movingPieceColor, newPosition);
+        
+        Board.setAt(newPosition, this);
+        Board.setAt(oldPosition, nullptr);
+        this->updatePos(newPosition);
+        
+        Board.plusHalfMoveNoCaptures();
+
+    }
+
+    Board.resetEnpassant();
+    Board.resetEnPassantFile();
+    Board.setEnpassantstr("");
+
+    if (this->canKingCastle())
+    {
+        newHash ^= Board.getcastlingKey(1, this->isWhite());
+        newHash ^= Board.getcastlingKey(2, this->isWhite());
+    }
+
+    this->resetCastling();
+    this->resetKingsideCastle();
+    this->resetQueensideCastle();
+    
+    Board.setKingPosition(this->isWhite(), newPosition);
+
+    Board.addHash(newHash);
+    Board.setPreviousHash(newHash);
+    
+    if(!Board.isWhiteTurn())
+        Board.plusFullMove();
+
+    return true;
+
 }

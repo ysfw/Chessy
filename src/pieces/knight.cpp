@@ -1,14 +1,14 @@
 #include "piece.h"
 #include "game.h"
 
-Knight::Knight(bool isWhite, pos startingPosition)
+knight::knight(bool isWhite, pos startingPosition)
     : piece(isWhite, startingPosition)
 {
     setprintableValue(isWhite ? "♞" : "♘");
     setType('n');
 }
 
-void Knight ::checkMoves(board &Board, pos /*currPosition*/)
+void knight ::checkMoves(board &Board, pos /*currPosition*/)
 {
     clearMoves();
     pair<int,int> directions [8]  = {{2,1},{2,-1},{-2,1},{-2,-1},{1,2},{-1,2},{1,-2},{-1,-2}};

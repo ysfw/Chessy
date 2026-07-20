@@ -1,3 +1,8 @@
+#include <algorithm>
+#include <map>
+#include <cmath>
+#include <cstdint>
+
 #include "piece.h"
 #include "game.h"
 bishop::bishop(bool isWhite, pos startingPosition)
@@ -65,3 +70,4 @@ void bishop :: checkMoves(board &Board, pos currPosition)
     
 }
 }
+

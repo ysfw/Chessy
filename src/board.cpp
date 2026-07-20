@@ -75,21 +75,18 @@ void board::initZobrist()
         enPassantFileKeys[i] = distribution(randomEngine);
 }
 
+king* board::getKing(bool isWhite)
+{
+    if (isWhite)
+        return dynamic_cast<king *>(getAt(whiteKingPosition));
+    else
+        return dynamic_cast<king *>(getAt(blackKingPosition));
+}
+
 uint64_t board ::calculateintitialZobristHash()
 {
     uint64_t hash = 0;
     hash ^= WhiteTurnkey;
-    enum PieceType
-    {
-        PAWN,
-        KNIGHT,
-        BISHOP,
-        ROOK,
-        QUEEN,
-        KING
-    };
-    static const map<char, int> pieceType = {
-        {'p', PAWN}, {'n', KNIGHT}, {'b', BISHOP}, {'r', ROOK}, {'q', QUEEN}, {'k', KING}};
     // XOR keys for each piece
     for (int i = 0; i < 8; i++)
     {
@@ -103,8 +100,9 @@ uint64_t board ::calculateintitialZobristHash()
                 uint64_t pieceHash = zobristTable[pieceType.at(type)][color][8 * i + j];
                 hash ^= pieceHash;
 
-                if (king *k = dynamic_cast<king *>(piece))
+                if (piece->getType() == 'k')
                 {
+                    king *k = getKing(piece->isWhite());
                     if (k->isWhite())
                     {
                         if (k->canKingsideCastle(*this))
@@ -135,18 +133,6 @@ uint64_t board ::calculateintitialZobristHash()
 uint64_t board::getPiecehash(char piece, bool isWhite, pos position)
 {
     int color = isWhite ? 1 : 0;
-    enum PieceType
-    {
-        PAWN,
-        KNIGHT,
-        BISHOP,
-        ROOK,
-        QUEEN,
-        KING
-    };
-    static const map<char, int> pieceType = {
-        {'p', PAWN}, {'n', KNIGHT}, {'b', BISHOP}, {'r', ROOK}, {'q', QUEEN}, {'k', KING}};
-
     return zobristTable[pieceType.at(piece)][color][(int)position.first * 8 + (int)position.second];
 }
 
@@ -228,8 +214,8 @@ board::board(bool fullBoard)
             }
         }
         fullmoves = 1;
-        king *wk = dynamic_cast<king *>(getAt(getKingPosition(true)));
-        king *bk = dynamic_cast<king *>(getAt(getKingPosition(false)));
+        king *wk = getKing(true);
+        king *bk = getKing(false);
         wk->setKingsideCastle();
         wk->setQueensideCastle();
         bk->setKingsideCastle();
@@ -330,8 +316,8 @@ board *board::boardFromFEN(string FEN)
         Board->whiteTurn = false;
     }
 
-    king *wk = dynamic_cast<king *>(Board->getAt(Board->whiteKingPosition));
-    king *bk = dynamic_cast<king *>(Board->getAt(Board->blackKingPosition));
+    king *wk = Board->getKing(true);
+    king *bk = Board->getKing(false);
 
     for (char flag : splitFENstrs[2])
     {
@@ -635,7 +621,7 @@ bool board::AttackedBy(pos Position, bool isDefenderWhite)
                 if (forwardOne == Position.first && (Position.second == p->getPosition().second + 1 || Position.second == p->getPosition().second - 1))
                     return true;
             }
-            else if (Knight *N = dynamic_cast<Knight *>(current))
+            else if (knight *N = dynamic_cast<knight *>(current))
             {
                 pair<int, int> directions[8] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {-1, 2}, {1, -2}, {-1, -2}};
                 for (pair<int, int> direction : directions)
@@ -725,7 +711,7 @@ bool board::isPinned(piece *p, pos newPosition)
     pos oldPosition = p->getPosition();
     piece *capturedPiece = this->getAt(newPosition);
 
-    bool isEnPassantCapture = (dynamic_cast<pawn *>(p) && capturedPiece == nullptr && p->getPossibleCaptures().count(newPosition));
+    bool isEnPassantCapture = (p->getType() == 'p' && capturedPiece == nullptr && p->getPossibleCaptures().count(newPosition));
     pos enPassantPawnPos;
     piece *enPassantPawn = nullptr;
     if (isEnPassantCapture)
@@ -855,10 +841,10 @@ bool board::isInsufficientMaterial()
                 piece *target = this->getAt({i, j});
                 if (target == nullptr)
                     continue;
-                else if (bishop *b = dynamic_cast<bishop *>(target))
+                else if (target->getType() == 'b')
                 {
                     bishopsFound++;
-                    bool isWhite = b->isWhite();
+                    bool isWhite = target->isWhite();
                     if (isWhite && ((i + j) % 2 != 0))
                         WhiteBishopOnWhiteSquare = true;
                     if (!isWhite && ((i + j) % 2 != 0))
@@ -975,8 +961,9 @@ string buildFEN(board &board)
     else
         FEN += "b ";
 
-    king *wk = dynamic_cast<king *>(board.getAt(board.getKingPosition(true)));
-    king *bk = dynamic_cast<king *>(board.getAt(board.getKingPosition(false)));
+    king *wk = board.getKing(true);
+    king *bk = board.getKing(false);
+
     bool whiteKingside = wk->getKingsideCastle();
     bool whiteQueenside = wk->getQueensideCastle();
     bool blackKingside = bk->getKingsideCastle();
