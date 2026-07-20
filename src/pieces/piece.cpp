@@ -6,7 +6,7 @@
 #include "game.h"
 using namespace std;
 
-bool piece::isWhite() { return White; }
+bool piece::isWhite() const { return White; }
 
 piece ::piece(bool isWhite, pos startingPosition)
     : position(startingPosition), White(isWhite), printableValue(""), possibleMoves() {}
@@ -14,7 +14,7 @@ piece ::piece(bool isWhite, pos startingPosition)
 piece::piece()
     : position({0, 0}), White(false), printableValue(""), possibleMoves() {}
 
-pos piece::getPosition()
+pos piece::getPosition() const
 {
     return this->position;
 }
@@ -38,7 +38,7 @@ void piece::setprintableValue(string newprintableValue)
     this->printableValue = newprintableValue;
 }
 
-char piece::getType()
+char piece::getType() const
 {
     return type;
 }

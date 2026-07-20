@@ -608,102 +608,14 @@ pos board ::getKingPosition(bool isWhite)
 bool board::AttackedBy(pos Position, bool isDefenderWhite)
 {
     for (size_t i = 0; i < 8; i++)
-    {
         for (size_t j = 0; j < 8; j++)
         {
             piece *current = this->getAt({i, j});
             if (current == nullptr || current->isWhite() == isDefenderWhite)
                 continue;
-
-            if (pawn *p = dynamic_cast<pawn *>(current))
-            {
-                size_t forwardOne = p->isWhite() ? p->getPosition().first + 1 : p->getPosition().first - 1;
-                if (forwardOne == Position.first && (Position.second == p->getPosition().second + 1 || Position.second == p->getPosition().second - 1))
-                    return true;
-            }
-            else if (knight *N = dynamic_cast<knight *>(current))
-            {
-                pair<int, int> directions[8] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {-1, 2}, {1, -2}, {-1, -2}};
-                for (pair<int, int> direction : directions)
-                {
-                    int firstCoord = (int)N->getPosition().first + direction.first;
-                    int secondCoord = (int)N->getPosition().second + direction.second;
-                    if ((firstCoord < 8 && firstCoord >= 0 && secondCoord < 8 && secondCoord >= 0) &&
-                        ((size_t)firstCoord == Position.first && (size_t)secondCoord == Position.second))
-                        return true;
-                }
-            }
-            else if (dynamic_cast<rook *>(current))
-            {
-                // Check straight lines (rook movement)
-                pair<int, int> dirs[4] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-                for (auto &dir : dirs)
-                {
-                    for (size_t k = 1; k < 8; k++)
-                    {
-                        size_t firstCoord = i + dir.first * k;
-                        size_t secondCoord = j + dir.second * k;
-                        if (firstCoord >= 8 || secondCoord >= 8)
-                            break;
-                        if (firstCoord == Position.first && secondCoord == Position.second)
-                            return true;
-                        if (this->getAt({firstCoord, secondCoord}) != nullptr)
-                            break;
-                    }
-                }
-            }
-            else if (bishop *B = dynamic_cast<bishop *>(current))
-            {
-                // Check diagonals (bishop movement)
-                pair<int, int> dirs[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-                for (auto &dir : dirs)
-                {
-                    for (size_t k = 1; k < 8; k++)
-                    {
-                        size_t firstCoord = B->getPosition().first + dir.first * k;
-                        size_t secondCoord = B->getPosition().second + dir.second * k;
-                        if (firstCoord >= 8 || secondCoord >= 8)
-                            break;
-                        if (firstCoord == Position.first && secondCoord == Position.second)
-                            return true;
-                        if (this->getAt({firstCoord, secondCoord}) != nullptr)
-                            break;
-                    }
-                }
-            }
-            else if (queen *Q = dynamic_cast<queen *>(current))
-            {
-                // Check all 8 directions (queen = rook + bishop)
-                pair<int, int> dirs[8] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-                for (auto &dir : dirs)
-                {
-                    for (size_t k = 1; k < 8; k++)
-                    {
-                        size_t firstCoord = Q->getPosition().first + dir.first * k;
-                        size_t secondCoord = Q->getPosition().second + dir.second * k;
-                        if (firstCoord >= 8 || secondCoord >= 8)
-                            break;
-                        if (firstCoord == Position.first && secondCoord == Position.second)
-                            return true;
-                        if (this->getAt({firstCoord, secondCoord}) != nullptr)
-                            break;
-                    }
-                }
-            }
-            else if (king *K = dynamic_cast<king *>(current))
-            {
-                pair<int, int> directions[8] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-                for (pair<int, int> direction : directions)
-                {
-                    int firstCoord = (int)K->getPosition().first + direction.first;
-                    int secondCoord = (int)K->getPosition().second + direction.second;
-                    if ((firstCoord < 8 && firstCoord >= 0 && secondCoord < 8 && secondCoord >= 0) &&
-                        ((size_t)firstCoord == Position.first && (size_t)secondCoord == Position.second))
-                        return true;
-                }
-            }
+            if (current->attacks(Position, *this))
+                return true;
         }
-    }
     return false;
 }
 bool board::isPinned(piece *p, pos newPosition)

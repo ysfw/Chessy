@@ -274,3 +274,10 @@ bool king::Move(board &Board, pos newPosition)
     return true;
 
 }
+
+bool king::attacks(pos target, board& /*b*/) const
+{
+    int dr = abs((int)target.first  - (int)getPosition().first);
+    int dc = abs((int)target.second - (int)getPosition().second);
+    return dr <= 1 && dc <= 1 && (dr + dc) > 0;
+}

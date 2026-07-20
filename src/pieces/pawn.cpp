@@ -344,3 +344,11 @@ bool pawn::Move(board &Board, pos newPosition)
     return true;
 
 }
+
+bool pawn::attacks(pos target, board& /*b*/) const
+{
+    pos from = getPosition();
+    size_t forward = isWhite() ? from.first + 1 : from.first - 1;
+    return forward == target.first &&
+           (target.second == from.second + 1 || target.second == from.second - 1);
+}

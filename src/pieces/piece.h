@@ -23,9 +23,9 @@ public:
     piece(bool isWhite, pos startingPosition);
     virtual ~piece();
 
-    bool isWhite();
-    char getType();
-    pos getPosition();
+    bool isWhite() const;
+    char getType() const;
+    pos getPosition() const;
     set<pos> getPossibleMoves ();
     set<pos> getPossibleCaptures ();
     string getprintableValue();
@@ -36,7 +36,8 @@ public:
     void addPossibleMove(pos move);
     void setprintableValue(string);
 
-    virtual bool canCastle() { return false; }
+    virtual bool canCastle() const { return false; }
+    virtual bool attacks(pos /*target*/, board& /*b*/) const { return false; }
 
 
     virtual bool Move(board &Board,pos newPosition);
@@ -51,7 +52,8 @@ private:
 public:
    rook(bool White, pos startingPosition);
    
-   bool canCastle()override;
+   bool canCastle() const override;
+   bool attacks(pos target, board& b) const override;
    void resetCastling();
    
    void checkMoves(board &Board, pos currPos)override;
@@ -65,6 +67,7 @@ public:
     bishop(bool isWhite, pos startingPosition);
     
     void checkMoves(board &Board, pos currPosition)override;
+    bool attacks(pos target, board& b) const override;
 };
 
 
@@ -76,6 +79,7 @@ public:
     king(bool White, pair<int, int> startingPosition);
     void checkMoves(board &Board, pos position)override;
     bool Move(board &Board,pos newPosition) override;
+    bool attacks(pos target, board& b) const override;
 
     bool canKingCastle();
     
@@ -100,6 +104,7 @@ class knight : public piece
     knight(bool White, pos startingPosition);
     
     void checkMoves(board &Board, pos currPosition)override;
+    bool attacks(pos target, board& b) const override;
 
 };
 
@@ -118,6 +123,7 @@ class pawn : public piece
     
     void checkMoves(board &Board,pos currPosition)override;
     bool Move(board &Board,pos newPosition) override;
+    bool attacks(pos target, board& b) const override;
 
 };
 
@@ -129,4 +135,5 @@ class queen : public piece
     queen(bool White, pos startingPosition);
 
     void checkMoves(board &Board, pos currPosition)override;
+    bool attacks(pos target, board& b) const override;
 };

@@ -34,3 +34,10 @@ void knight ::checkMoves(board &Board, pos /*currPosition*/)
     }
    
 }
+
+bool knight::attacks(pos target, board& /*b*/) const
+{
+    int dr = abs((int)target.first  - (int)getPosition().first);
+    int dc = abs((int)target.second - (int)getPosition().second);
+    return (dr == 2 && dc == 1) || (dr == 1 && dc == 2);
+}

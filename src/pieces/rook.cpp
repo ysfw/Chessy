@@ -18,7 +18,7 @@ rook::rook(bool isWhite, pos startingPosition)
     else hasCastlingRights = false;
 }
 
-bool rook::canCastle()
+bool rook::canCastle() const
 {
     return hasCastlingRights;
 }
@@ -178,4 +178,19 @@ bool rook::Move(board &Board, pos newPosition)
 
     return true;
 
+}
+
+bool rook::attacks(pos target, board& b) const
+{
+    pos from = getPosition();
+    pair<int,int> dirs[4] = {{0,1},{0,-1},{1,0},{-1,0}};
+    for (auto& dir : dirs)
+        for (size_t k = 1; k < 8; k++) {
+            size_t r = from.first  + dir.first  * k;
+            size_t c = from.second + dir.second * k;
+            if (r >= 8 || c >= 8) break;
+            if (r == target.first && c == target.second) return true;
+            if (b.getAt({r, c}) != nullptr) break;
+        }
+    return false;
 }

@@ -53,7 +53,7 @@ chcp 65001
 Run the game:
 
 ```bash
-./chess
+./chessy
 ```
 
 ## How to Play
